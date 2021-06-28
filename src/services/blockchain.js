@@ -17,4 +17,9 @@ module.exports = class Blockchain {
     this.chain.push(newBlock);
     return newBlock;
   }
+
+  getLastBlock() {
+    if (this.chain.length === 0) return null;
+    return this.chain[this.chain.length - 1];
+  }
 };
