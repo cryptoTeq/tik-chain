@@ -1,0 +1,26 @@
+{
+  "name": "tik-chain",
+  "version": "1.0.0",
+  "description": "Contractika Blockchain",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node ./src/server.js",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cryptoTeq/tik-chain.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cryptoTeq/tik-chain/issues"
+  },
+  "homepage": "https://github.com/cryptoTeq/tik-chain#readme",
+  "dependencies": {
+    "@types/jest": "^26.0.23",
+    "express": "^4.17.1",
+    "jest": "^27.0.5"
+  }
+}
