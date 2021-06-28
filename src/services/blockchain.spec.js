@@ -29,12 +29,12 @@ describe("Blockchain", () => {
     expect(nonce).toBe(NONCE);
     expect(id).toBe(1);
     expect(transactions).toEqual(expect.arrayContaining([]));
-    expect(previousBlockHash).toEqual(PREVIOUS_BLOCK_HASH);
-    expect(hash).toEqual(HASH);
+    expect(previousBlockHash).toBe(PREVIOUS_BLOCK_HASH);
+    expect(hash).toBe(HASH);
 
     const { chain, pendingTransactions } = blockchain;
-    expect(pendingTransactions.length).toEqual(0);
-    expect(chain.length).toEqual(1);
+    expect(pendingTransactions.length).toBe(0);
+    expect(chain.length).toBe(1);
   });
 
   describe("getLastBlock", () => {
@@ -54,11 +54,42 @@ describe("Blockchain", () => {
         hash: lh,
       } = blockchain.getLastBlock();
 
-      expect(lid).toEqual(id);
-      expect(ltrans.length).toEqual(transactions.length);
-      expect(lpbh).toEqual(previousBlockHash);
-      expect(ln).toEqual(nonce);
-      expect(lh).toEqual(hash);
+      expect(lid).toBe(id);
+      expect(ltrans.length).toBe(transactions.length);
+      expect(lpbh).toBe(previousBlockHash);
+      expect(ln).toBe(nonce);
+      expect(lh).toBe(hash);
+    });
+  });
+
+  describe("New transaction", () => {
+    let newTransaction, holderBlockId;
+    const { amount, sender, receiver } = {
+      sender: "SENDER",
+      receiver: "RECEIVER",
+      amount: "AMOUNT",
+    };
+
+    beforeEach(() => {
+      createGenesisBlock();
+      holderBlockId = blockchain.addNewTransaction(amount, sender, receiver);
+      newTransaction = blockchain.pendingTransactions[0];
+    });
+
+    test("adds a new transaction to the pending transactions", () => {
+      const {
+        amount: txAmount,
+        sender: txSender,
+        receiver: txReceiver,
+      } = newTransaction;
+      expect(blockchain.pendingTransactions.length).toBe(1);
+      expect(txAmount).toBe(amount);
+      expect(txReceiver).toBe(receiver);
+      expect(txSender).toBe(sender);
+    });
+
+    test("returns potential holder block id", () => {
+      expect(holderBlockId).toBeTruthy();
     });
   });
 });
