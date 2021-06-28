@@ -37,6 +37,28 @@ describe("Blockchain", () => {
     expect(chain.length).toBe(1);
   });
 
+  describe("hashing", () => {
+    const hashingParams = {
+      nonce: 123456789,
+      previouseBlockHash: "RANDOM_HASH_DATA",
+      currentBlockTransactions: [
+        { amount: 1234, sender: "SENDER1", receiver: "RECEIVER1" },
+        { amount: 5678, sender: "SENDER2", receiver: "RECEIVER2" },
+      ],
+    };
+    test("generates block hash data", () => {
+      const hash = blockchain.hashBlockTransactions(hashingParams);
+      expect(hash).toBeTruthy();
+      expect(hash.length).toEqual(64);
+    });
+
+    test("returns null on Error", () => {
+      const params = { ...hashingParams, nonce: undefined };
+      const hash = blockchain.hashBlockTransactions(params);
+      expect(hash).toBe(null);
+    });
+  });
+
   describe("getLastBlock", () => {
     test("returns null on empty blockchain", () => {
       expect(blockchain.getLastBlock()).toEqual(null);

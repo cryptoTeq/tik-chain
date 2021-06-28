@@ -1,3 +1,5 @@
+const sha256 = require("crypto-js/sha256");
+
 module.exports = class Blockchain {
   constructor() {
     this.chain = [];
@@ -33,5 +35,17 @@ module.exports = class Blockchain {
     this.pendingTransactions.push(tx);
     const holderBlockId = this.getLastBlock()["id"] + 1;
     return holderBlockId;
+  }
+
+  hashBlockTransactions({ previousBlockHash, blockTransactions, nonce }) {
+    try {
+      return sha256(
+        `${previousBlockHash}${nonce.toString()}${JSON.stringify(
+          blockTransactions
+        )}`
+      ).toString();
+    } catch (e) {
+      return null;
+    }
   }
 };
