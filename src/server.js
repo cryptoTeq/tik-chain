@@ -1,10 +1,16 @@
 const express = require("express");
-const app = express();
-const port = 3000;
+const { mineBlock, postTransaction, getChain, home } = require("./controllers");
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+const port = process.env["port"] || 3000;
+
+app.get("/", home);
+app.get("/chain", getChain);
+app.post("/transactions", postTransaction);
+app.post("/mine", mineBlock);
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
