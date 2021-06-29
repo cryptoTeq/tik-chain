@@ -6,12 +6,7 @@ jest.mock(
 );
 
 let blockchain = new Blockchain();
-const genesisBlockInfo = {
-  nonce: "NONCE",
-  previousBlockHash: "PREVIOUS_BLOCK_HASH",
-  hash: "HASH",
-};
-const blockData = {
+const sampleBlockData = {
   previouseBlockHash: "RANDOM_HASH_DATA",
   blockTransactions: [
     { amount: 1234.0001, sender: "SENDER1", receiver: "RECEIVER1" },
@@ -19,24 +14,19 @@ const blockData = {
   ],
 };
 
-const createGenesisBlock = () => {
-  const { hash, nonce, previousBlockHash } = genesisBlockInfo;
-  return blockchain.createNewBlock(nonce, previousBlockHash, hash);
-};
-
 describe("Blockchain", () => {
   beforeEach(() => {
     blockchain = new Blockchain();
   });
 
-  test("creates the genesis block", () => {
+  test("creates the genesis block on initialization", () => {
     const {
       hash: HASH,
       previousBlockHash: PREVIOUS_BLOCK_HASH,
       nonce: NONCE,
-    } = genesisBlockInfo;
+    } = Blockchain.GENESIS_BLOCK_INFO;
     const { id, transactions, previousBlockHash, nonce, hash } =
-      createGenesisBlock();
+      blockchain.getGenesisBlock();
 
     expect(nonce).toBe(NONCE);
     expect(id).toBe(1);
@@ -50,15 +40,18 @@ describe("Blockchain", () => {
   });
 
   test("calculates proof of work (nonce)", () => {
-    const nonce = blockchain.proofOfWork({ ...blockData });
-    const blockHash = blockchain.hashBlockTransactions({ ...blockData, nonce });
-    expect(blockHash.startsWith("0000")).toBe(true);
+    const nonce = blockchain.proofOfWork({ ...sampleBlockData });
+    const blockHash = blockchain.hashBlockTransactions({
+      ...sampleBlockData,
+      nonce,
+    });
+    expect(blockHash.startsWith(Blockchain.PROOF_OF_WORK_PREFIX)).toBe(true);
   });
 
   describe("hashing", () => {
     const hashingParams = {
       nonce: 123456789,
-      ...blockData,
+      ...sampleBlockData,
     };
     test("generates block hash data", () => {
       const hash = blockchain.hashBlockTransactions(hashingParams);
@@ -73,29 +66,17 @@ describe("Blockchain", () => {
     });
   });
 
-  describe("getLastBlock", () => {
-    test("returns null on empty blockchain", () => {
-      expect(blockchain.getLastBlock()).toEqual(null);
-      expect(blockchain.chain.length).toEqual(0);
-    });
+  test("getLastBlock returns last block", () => {
+    const { previousBlockHash, nonce, hash } = Blockchain.GENESIS_BLOCK_INFO;
+    const {
+      previousBlockHash: lpbh,
+      nonce: ln,
+      hash: lh,
+    } = blockchain.getLastBlock();
 
-    test("returns last block on non-empty blockchain", () => {
-      const { id, transactions, previousBlockHash, nonce, hash } =
-        createGenesisBlock();
-      const {
-        id: lid,
-        transactions: ltrans,
-        previousBlockHash: lpbh,
-        nonce: ln,
-        hash: lh,
-      } = blockchain.getLastBlock();
-
-      expect(lid).toBe(id);
-      expect(ltrans.length).toBe(transactions.length);
-      expect(lpbh).toBe(previousBlockHash);
-      expect(ln).toBe(nonce);
-      expect(lh).toBe(hash);
-    });
+    expect(lpbh).toBe(previousBlockHash);
+    expect(ln).toBe(nonce);
+    expect(lh).toBe(hash);
   });
 
   describe("New transaction", () => {
@@ -107,7 +88,6 @@ describe("Blockchain", () => {
     };
 
     beforeEach(() => {
-      createGenesisBlock();
       holderBlockId = blockchain.addNewTransaction(amount, sender, receiver);
       newTransaction = blockchain.pendingTransactions[0];
     });

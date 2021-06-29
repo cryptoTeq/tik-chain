@@ -1,10 +1,25 @@
 const sha256 = require("crypto-js/sha256");
 
 module.exports = class Blockchain {
+  static PROOF_OF_WORK_PREFIX = "0000";
+  static HASH_LENGTH = 64;
+  static GENESIS_BLOCK_INFO = Object.freeze({
+    nonce: 622,
+    previousBlockHash: 0,
+    hash: 0,
+  });
+
   constructor() {
     this.chain = [];
     this.pendingTransactions = [];
-    //addGenesisBlock() // TODO:  add this here
+
+    // Genesis Block
+    const { hash, previousBlockHash, nonce } = Blockchain.GENESIS_BLOCK_INFO;
+    this.createNewBlock(nonce, previousBlockHash, hash);
+  }
+
+  getGenesisBlock() {
+    return this.chain[0];
   }
 
   createNewBlock(nonce, prevBlockHash, hash) {
@@ -39,11 +54,14 @@ module.exports = class Blockchain {
 
   hashBlockTransactions({ previousBlockHash, blockTransactions, nonce }) {
     try {
-      return sha256(
+      const hash = sha256(
         `${previousBlockHash}${nonce.toString()}${JSON.stringify(
           blockTransactions
         )}`
       ).toString();
+      if (hash.length !== Blockchain.HASH_LENGTH)
+        throw new Error("Hash Not Valid");
+      return hash;
     } catch (e) {
       return null;
     }
@@ -52,14 +70,13 @@ module.exports = class Blockchain {
   proofOfWork({ previousBlockHash, blockTransactions }) {
     let hash, result;
     let nonce = 0;
-    const validHash = "0000";
     do {
       hash = this.hashBlockTransactions({
         previousBlockHash,
         blockTransactions,
         nonce,
       });
-      if (hash.startsWith(validHash)) result = nonce;
+      if (hash.startsWith(Blockchain.PROOF_OF_WORK_PREFIX)) result = nonce;
       nonce++;
     } while (!result);
     return result;
