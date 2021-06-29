@@ -1,10 +1,22 @@
 const Blockchain = require("./blockchain");
 
+jest.mock(
+  "crypto-js/SHA256",
+  () => () => "000010c83610ebca1a059c0bae8255eba2f95be4d1d7bcfa89d7248a82d9f111"
+);
+
 let blockchain = new Blockchain();
 const genesisBlockInfo = {
   nonce: "NONCE",
   previousBlockHash: "PREVIOUS_BLOCK_HASH",
   hash: "HASH",
+};
+const blockData = {
+  previouseBlockHash: "RANDOM_HASH_DATA",
+  blockTransactions: [
+    { amount: 1234.0001, sender: "SENDER1", receiver: "RECEIVER1" },
+    { amount: 5678.0002, sender: "SENDER2", receiver: "RECEIVER2" },
+  ],
 };
 
 const createGenesisBlock = () => {
@@ -35,6 +47,30 @@ describe("Blockchain", () => {
     const { chain, pendingTransactions } = blockchain;
     expect(pendingTransactions.length).toBe(0);
     expect(chain.length).toBe(1);
+  });
+
+  test("calculates proof of work (nonce)", () => {
+    const nonce = blockchain.proofOfWork({ ...blockData });
+    const blockHash = blockchain.hashBlockTransactions({ ...blockData, nonce });
+    expect(blockHash.startsWith("0000")).toBe(true);
+  });
+
+  describe("hashing", () => {
+    const hashingParams = {
+      nonce: 123456789,
+      ...blockData,
+    };
+    test("generates block hash data", () => {
+      const hash = blockchain.hashBlockTransactions(hashingParams);
+      expect(hash).toBeTruthy();
+      expect(hash.length).toEqual(64);
+    });
+
+    test("returns null on Error", () => {
+      const params = { ...hashingParams, nonce: undefined };
+      const hash = blockchain.hashBlockTransactions(params);
+      expect(hash).toBe(null);
+    });
   });
 
   describe("getLastBlock", () => {
