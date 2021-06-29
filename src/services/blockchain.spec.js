@@ -41,6 +41,7 @@ describe("Blockchain", () => {
 
   test("calculates proof of work (nonce)", () => {
     const nonce = blockchain.proofOfWork({ ...sampleBlockData });
+    console.log(`nonce`, nonce);
     const blockHash = blockchain.hashBlockTransactions({
       ...sampleBlockData,
       nonce,

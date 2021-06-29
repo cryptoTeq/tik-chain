@@ -68,7 +68,8 @@ module.exports = class Blockchain {
   }
 
   proofOfWork({ previousBlockHash, blockTransactions }) {
-    let hash, result;
+    let hash,
+      result = 0;
     let nonce = 0;
     do {
       hash = this.hashBlockTransactions({
@@ -76,9 +77,9 @@ module.exports = class Blockchain {
         blockTransactions,
         nonce,
       });
-      if (hash.startsWith(Blockchain.PROOF_OF_WORK_PREFIX)) result = nonce;
+      if (hash.startsWith(Blockchain.PROOF_OF_WORK_PREFIX)) return nonce;
       nonce++;
     } while (!result);
-    return result;
+    return null;
   }
 };
