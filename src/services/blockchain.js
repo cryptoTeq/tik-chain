@@ -48,4 +48,20 @@ module.exports = class Blockchain {
       return null;
     }
   }
+
+  proofOfWork({ previousBlockHash, blockTransactions }) {
+    let hash, result;
+    let nonce = 0;
+    const validHash = "0000";
+    do {
+      hash = this.hashBlockTransactions({
+        previousBlockHash,
+        blockTransactions,
+        nonce,
+      });
+      if (hash.startsWith(validHash)) result = nonce;
+      nonce++;
+    } while (!result);
+    return result;
+  }
 };
