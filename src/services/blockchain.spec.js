@@ -1,4 +1,4 @@
-const Blockchain = require("./blockchain");
+const Blockchain = require("./blockchain.service");
 
 jest.mock(
   "crypto-js/SHA256",
@@ -17,6 +17,18 @@ const sampleBlockData = {
 describe("Blockchain", () => {
   beforeEach(() => {
     blockchain = new Blockchain();
+  });
+
+  test("has all properties", () => {
+    expect(blockchain.currentNodeUrl).toEqual("http://localhost:3000");
+    expect(blockchain.nodeUrls.length).toBe(0);
+  });
+
+  test("adds node to network", () => {
+    const nodeUrl = "NODEURL";
+    expect(blockchain.nodeUrls.length).toBe(0);
+    blockchain.addNode(nodeUrl);
+    expect(blockchain.nodeUrls.length).toBe(1);
   });
 
   test("creates the genesis block on initialization", () => {

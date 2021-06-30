@@ -1,4 +1,5 @@
 const sha256 = require("crypto-js/sha256");
+const { getCurrentNodeUrl } = require("./node.service");
 
 module.exports = class Blockchain {
   static PROOF_OF_WORK_PREFIX = "0000";
@@ -12,6 +13,8 @@ module.exports = class Blockchain {
   constructor() {
     this.chain = [];
     this.pendingTransactions = [];
+    this.currentNodeUrl = getCurrentNodeUrl();
+    this.nodeUrls = [];
 
     // Genesis Block
     const { hash, previousBlockHash, nonce } = Blockchain.GENESIS_BLOCK_INFO;
@@ -81,5 +84,12 @@ module.exports = class Blockchain {
       nonce++;
     } while (!result);
     return null;
+  }
+
+  addNode(nodeUrl) {
+    const node = this.nodeUrls.find((url) => url === nodeUrl);
+    if (node || nodeUrl === this.currentNodeUrl) return false;
+    this.nodeUrls.push(nodeUrl);
+    return true;
   }
 };
